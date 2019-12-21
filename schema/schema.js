@@ -2,6 +2,7 @@ const graphql = require('graphql');
 const _ = require('lodash');
 const CFA = require('../model/CFA');
 const RegionCFA = require('../model/RegionCFA')
+const DistrictRSA = require('../model/DistrictRSA')
 
 const {
     GraphQLObjectType, 
@@ -9,7 +10,8 @@ const {
     GraphQLSchema,
     GraphQLID,
     GraphQLBoolean,
-    GraphQLList
+    GraphQLList,
+    GraphQLInt
 } = graphql;
 
 const CFAType = new GraphQLObjectType({
@@ -38,7 +40,7 @@ const RegionCFAType = new GraphQLObjectType({
     firebanStatus: {type: GraphQLString},
     fireDangerRating : {type: GraphQLString},
     _cfa: {
-      type: CFAType,
+      type: CFAType,  
       resolve(parent, args){
         return CFA.findById(parent._cfa)
       }
@@ -46,10 +48,24 @@ const RegionCFAType = new GraphQLObjectType({
   })
 })
 
+const DistrictRSAType = new GraphQLObjectType({
+  name: 'DisctrictRSA',
+  fields: () => ({
+    id: {type: GraphQLID},
+    name: {type: GraphQLString}, 
+    regionNumber: {type: GraphQLInt},
+    councils: {type: GraphQLList(GraphQLString)},
+    dangerLevelToday: {type: GraphQLString},
+    dangerLevelTomorrow: {type: GraphQLString},
+    fireBanToday: {type: GraphQLBoolean},
+    fireBanTomorrow: {type: GraphQLBoolean}
+  })
+})
+
 const RootQuery = new GraphQLObjectType({
     name: 'RootQueryType',
     fields: {
-        cfa: {
+        cfaById: {
           type: CFAType,
           args: {id: {type: GraphQLID}},
           resolve(parent, args){
@@ -59,7 +75,7 @@ const RootQuery = new GraphQLObjectType({
         cfas: {
           type: new GraphQLList(CFAType),
           resolve(parent, args){
-              return CFA.find({});
+            return CFA.find({});
           }
         },
         regionByName: {
@@ -74,6 +90,26 @@ const RootQuery = new GraphQLObjectType({
           args: {id: {type: GraphQLID}},
           resolve(parent, args){
             return RegionCFA.findById(args.id)
+          }
+        },
+        districts: {
+          type: new GraphQLList(DistrictRSAType),
+          resolve(parent, args){
+            return DistrictRSA.find({})
+          }
+        },
+        districtByName: {
+          type: DistrictRSAType,
+          args: {name: {type: GraphQLString}},
+          resolve(parent, args){
+            return DistrictRSA.findOne({name: args.name})
+          }
+        },
+        districtById: {
+          type: DistrictRSAType,
+          args: {id: {type: GraphQLID}},
+          resolve(parent, args){
+            return DistrictRSA.findById(args.id)
           }
         },
     }
