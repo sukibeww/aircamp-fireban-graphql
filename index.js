@@ -19,12 +19,15 @@ mongoose.connection.once('open', () => {
     console.log("connected to the database")
 })
 
+
+
+app.use(require('./router/CFA-router'))
+app.use(require('./router/RSA-router'))
+
 app.use('/', graphqlHTTP({
     schema,
     graphiql: true
 }));
-
-app.use(require('./router/CFA-router'))
 
 app.listen(5000, () => {
     console.log(("Listening to port 5000"))
