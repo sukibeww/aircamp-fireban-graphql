@@ -23,6 +23,7 @@ mongoose.connection.once('open', () => {
 
 app.use(require('./router/CFA-router'))
 app.use(require('./router/RSA-router'))
+app.use(require('./router/Ruralfire-router'))
 
 app.use('/', graphqlHTTP({
     schema,
