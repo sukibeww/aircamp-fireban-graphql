@@ -3,6 +3,7 @@ const _ = require('lodash');
 const CFA = require('../model/CFA');
 const RegionCFA = require('../model/RegionCFA')
 const DistrictRSA = require('../model/DistrictRSA')
+const LGA = require('../model/LGA')
 
 const {
     GraphQLObjectType, 
@@ -14,22 +15,36 @@ const {
     GraphQLInt
 } = graphql;
 
+const LGAType = new GraphQLObjectType({
+  name: 'LGA',
+  fields: () => ({
+    id: {type: GraphQLID}, 
+    name: {type: GraphQLString},
+    author: {type: GraphQLString},
+    fireBanStatus: {type: GraphQLBoolean},
+    startDate: {type: GraphQLString},
+    endDate: {type: GraphQLString},
+    publishDate: {type: GraphQLString},
+    modifiedDate: {type: GraphQLString}
+  })
+})
+
 const CFAType = new GraphQLObjectType({
-    name: 'CFA',
-    fields: () => ({
-        id: {type: GraphQLID}, 
-        title: {type: GraphQLString},
-        content: {type: GraphQLString},
-        contentSnippet: {type: GraphQLString},
-        guid: {type: GraphQLString},
-        totalFireBanStatus: {type: GraphQLBoolean},
-        regions: {
-          type: new GraphQLList(RegionCFAType),
-          resolve(parent, args){
-            return RegionCFA.find({_cfa: parent._id})
-          }
+  name: 'CFA',
+  fields: () => ({
+      id: {type: GraphQLID}, 
+      title: {type: GraphQLString},
+      content: {type: GraphQLString},
+      contentSnippet: {type: GraphQLString},
+      guid: {type: GraphQLString},
+      totalFireBanStatus: {type: GraphQLBoolean},
+      regions: {
+        type: new GraphQLList(RegionCFAType),
+        resolve(parent, args){
+          return RegionCFA.find({_cfa: parent._id})
         }
-    })
+      }
+  })
 });
 
 const RegionCFAType = new GraphQLObjectType({
@@ -112,6 +127,26 @@ const RootQuery = new GraphQLObjectType({
             return DistrictRSA.findById(args.id)
           }
         },
+        lgas: {
+          type: new GraphQLList(LGAType),
+          resolve(parent, args){
+            return LGA.find({})
+          }
+        },
+        lgaById: {
+          type: LGAType,
+          args: {id: {type: GraphQLID}},
+          resolve(parent, args){
+            return LGA.findById(args.id)
+          }
+        },
+        lgaByName: {
+          type: LGAType,
+          args: {name: {type: GraphQLString}},
+          resolve(parent, args){
+            return LGA.findOne({name: args.name})
+          }
+        }
     }
 });
 
