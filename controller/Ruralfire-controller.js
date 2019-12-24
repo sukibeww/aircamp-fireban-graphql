@@ -45,6 +45,7 @@ const processLGA = (lgas) => {
 
 
 exports.getRuralfire = async (req, res, next ) => {
+  await LGA.deleteMany({})
   let feed = await parser.parseURL('https://www.ruralfire.qld.gov.au/BushFire_Safety/Neighbourhood-Safer-Places/lgas/_layouts/15/listfeed.aspx?List=a4f237e1-b263-4062-a8e2-82774f87f01d&View=a0a7270f-6252-422c-96f2-d7088ae16ffe');
   const items = feed.items
   // console.log(processDescription(feed.items[1].content))
@@ -53,9 +54,21 @@ exports.getRuralfire = async (req, res, next ) => {
     const author = item.author
     const publishDate = item.pubDate
     const description = item.content
-    const LGAs = processDescription(description)
-    console.log(LGAs)
-    // console.log({author, publishDate, description})
+    const { regions, fireBanStatus, modified, startDate, endDate } = processDescription(description)
+    console.log({author, publishDate, regions, fireBanStatus, modified, startDate, endDate})
+    regions.forEach((region) => {
+      const test = new LGA({
+        name: region ? region : undefined,
+        author: author ? author : undefined,
+        fireBanStatus: fireBanStatus, 
+        startDate: startDate ? startDate : undefined, 
+        endDate: endDate ? endDate : undefined, 
+        publishDate: publishDate ? publishDate : undefined,
+        modifiedDate: modified ? modified : undefined
+      })
+      test.save()
+    })
+    
   })
-  res.send(items)
+  res.send("LGA information retrieved")
 }

@@ -5,10 +5,10 @@ const LGASchema = new Schema({
   name: String, 
   author: String,
   fireBanStatus: Boolean,
-  fireBanDescription: String,
   startDate: String,
   endDate: String,
-  publishDate: String
+  publishDate: String,
+  modifiedDate: String
 });
 
 module.exports = mongoose.model('LGA', LGASchema);
