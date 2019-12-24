@@ -26,7 +26,8 @@ const processLGA = (lgas) => {
         regions = topic["Local Government Area:"].split(", ")
         break
       case 'Fire Bans:':
-        fireBanStatus = (/"no"/).test(topic['Fire Bans:'])
+        const regex = RegExp('no');
+        fireBanStatus = !regex.test(topic['Fire Bans:'])
         break
       case 'Modified:':
         modified = topic['Modified:']
@@ -42,22 +43,22 @@ const processLGA = (lgas) => {
   return { regions, fireBanStatus, modified, startDate, endDate }
 }
 
-
-
 exports.getRuralfire = async (req, res, next ) => {
-  await LGA.deleteMany({})
+  LGA.deleteMany({}, (err)=>{
+    if(err){
+      console.log(err)
+      res.send("Flush Error")
+    }
+  })
   let feed = await parser.parseURL('https://www.ruralfire.qld.gov.au/BushFire_Safety/Neighbourhood-Safer-Places/lgas/_layouts/15/listfeed.aspx?List=a4f237e1-b263-4062-a8e2-82774f87f01d&View=a0a7270f-6252-422c-96f2-d7088ae16ffe');
   const items = feed.items
-  // console.log(processDescription(feed.items[1].content))
-  // processDescription(feed.items[1].content)
   items.forEach((item) => {
     const author = item.author
     const publishDate = item.pubDate
     const description = item.content
     const { regions, fireBanStatus, modified, startDate, endDate } = processDescription(description)
-    console.log({author, publishDate, regions, fireBanStatus, modified, startDate, endDate})
     regions.forEach((region) => {
-      const test = new LGA({
+      LGA.create({
         name: region ? region : undefined,
         author: author ? author : undefined,
         fireBanStatus: fireBanStatus, 
@@ -66,9 +67,7 @@ exports.getRuralfire = async (req, res, next ) => {
         publishDate: publishDate ? publishDate : undefined,
         modifiedDate: modified ? modified : undefined
       })
-      test.save()
     })
-    
   })
   res.send("LGA information retrieved")
 }
