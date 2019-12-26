@@ -7,7 +7,7 @@ const RegionCFASchema = new Schema({
     ref: "CFA"
   },
   name: String,
-  firebanStatus: String,
+  firebanStatus: Boolean,
   fireDangerRating: String
 });
 
