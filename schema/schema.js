@@ -52,7 +52,7 @@ const RegionCFAType = new GraphQLObjectType({
   fields: () => ({
     id: {type: GraphQLID},
     name: {type: GraphQLString},
-    firebanStatus: {type: GraphQLString},
+    firebanStatus: {type: GraphQLBoolean},
     fireDangerRating : {type: GraphQLString},
     _cfa: {
       type: CFAType,  
@@ -98,6 +98,12 @@ const RootQuery = new GraphQLObjectType({
           args: {name: {type: GraphQLString}},
           resolve(parent, args){
             return RegionCFA.find({name : args.name})
+          }
+        },
+        regions: {
+          type: new GraphQLList(RegionCFAType),
+          resolve(parent, args){ 
+            return RegionCFA.find({})
           }
         },
         regionById: {

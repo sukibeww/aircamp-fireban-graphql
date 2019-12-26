@@ -9,7 +9,7 @@ const processRegion = async (fireBanStatuses, fireDangerRatings, cfa) => {
     return await RegionCFA.create({
       _cfa : cfa,
       name: regionInfo[0],
-      firebanStatus: regionInfo[1],
+      firebanStatus: !(/NO/).test(regionInfo[1]),
       fireDangerRating: fireDangerRatings[0].split(": ")[1]
     })
   })
@@ -25,7 +25,7 @@ const processContent = async (firebanInfo) => {
   const totalFireBanStatus = await !(/is not currently a day of Total Fire Ban/).test(cleanContent[0])
   const fireBanStatuses = cleanContent[1].split('<br>')
   fireBanStatuses.pop()
-  const fireDangerRatings = cleanContent[3].split('<br>')
+  const fireDangerRatings = cleanContent.pop().split('<br>')
   fireDangerRatings.pop()
   return {totalFireBanStatus, fireBanStatuses, fireDangerRatings }
 }
